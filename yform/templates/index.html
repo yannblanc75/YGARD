@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulaire Emprunteur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .message {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .message.success {
+      color: green;
+    }
+    .message.error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Formulaire Emprunteur</h1>
+    <form id="emprunteurForm">
+      <label for="prenom">Prénom :</label>
+      <input type="text" id="prenom" name="prenom" required>
+
+      <label for="nom">Nom :</label>
+      <input type="text" id="nom" name="nom" required>
+
+      <label for="montant">Montant :</label>
+      <input type="number" id="montant" name="montant" required>
+
+      <label for="score_sante">Score Santé :</label>
+      <input type="number" id="score_sante" name="score_sante" required>
+
+      <label for="score_employabilite">Score Employabilité :</label>
+      <input type="number" id="score_employabilite" name="score_employabilite" required>
+
+      <button type="submit">Ajouter</button>
+    </form>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('emprunteurForm').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Empêche le rechargement de la page
+
+      // Récupérer les données du formulaire
+      const formData = {
+        prenom: document.getElementById('prenom').value,
+        nom: document.getElementById('nom').value,
+        montant: parseFloat(document.getElementById('montant').value),
+        score_sante: parseInt(document.getElementById('score_sante').value, 10),
+        score_employabilite: parseInt(document.getElementById('score_employabilite').value, 10),
+      };
+
+      const messageElement = document.getElementById('message');
+
+      try {
+        // Envoi des données au backend via Fetch API
+        const response = await fetch('http://127.0.0.1:5000/api/emprunteurs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        // Traitement de la réponse
+        if (response.ok) {
+          const result = await response.json();
+          messageElement.textContent = result.message;
+          messageElement.className = 'message success';
+          document.getElementById('emprunteurForm').reset(); // Réinitialise le formulaire
+        } else {
+          const error = await response.json();
+          messageElement.textContent = 'Erreur : ' + error.error;
+          messageElement.className = 'message error';
+        }
+      } catch (err) {
+        messageElement.textContent = 'Erreur de connexion au serveur : ' + err.message;
+        messageElement.className = 'message error';
+      }
+    });
+  </script>
+</body>
+</html>
