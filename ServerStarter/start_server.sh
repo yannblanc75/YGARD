@@ -4,7 +4,7 @@
 DB_HOST="localhost"  # Hôte MySQL
 DB_USER="root"  # Utilisateur MySQL
 DB_PASS="root"  # Mot de passe MySQL
-DB_NAME="dossiers_db"  # Nom de la base de données
+DB_NAME="banqueEvaluation"  # Nom de la base de données
 
 # Fonction pour vérifier la connexion MySQL
 check_mysql_connection() {

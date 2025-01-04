@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Ajouter un emprunteur</title>
+</head>
+<body>
+    <header>
+        <h1>Ajouter un emprunteur</h1>
+    </header>
+    <main>
+        <form id="borrowerForm">
+            <label>Prénom:</label>
+            <input type="text" name="prenom" required>
+            <label>Nom:</label>
+            <input type="text" name="nom" required>
+            <label>Montant:</label>
+            <input type="number" name="montant" required>
+            <label>Âge:</label>
+            <input type="number" name="age" required>
+            <label>Poids (kg):</label>
+            <input type="number" name="poids" required>
+            <label>Taille (cm):</label>
+            <input type="number" name="taille" required>
+            <label>Antécédents Médicaux (0-10):</label>
+            <input type="number" name="antecedents_medicaux" required>
+            <label>Score Employabilité:</label>
+            <input type="number" name="score_employabilite" required>
+            <button type="submit">Ajouter</button>
+        </form>
+    </main>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+/* Archive Page Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.archive-container {
+    width: 90%;
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.back-button {
+    text-decoration: none;
+    font-size: 24px;
+    color: #333;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.archive-title {
+    text-align: center;
+    margin: 0;
+    padding-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.archive-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background-color: #e6e6e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+}
+
+.archive-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.archive-score {
+    font-weight: bold;
+}
+
+.high-score .archive-score {
+    color: green;
+}
+
+.low-score .archive-score {
+    color: red;
+}

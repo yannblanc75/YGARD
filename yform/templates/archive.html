@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archives</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="archive-container">
+        <a href="/" class="back-button">←</a>
+        <h1 class="archive-title">Archives</h1>
+        <div class="archive-list">
+            {% for client in clients %}
+            <div class="archive-card {% if client.score_sante > 60 %}high-score{% else %}low-score{% endif %}">
+                <span class="archive-name">{{ client.Prenom }} {{ client.Nom }}</span>
+                <span class="archive-score">{{ client.score_sante }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
