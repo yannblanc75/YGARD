@@ -8,15 +8,33 @@ CORS(app)
 # Configuration de la base de données
 db_config = {
     'host': 'localhost',
-    'user': 'root',  # Remplacez par votre utilisateur MySQL
-    'password': 'root',  # Remplacez par votre mot de passe MySQL
-    'database': 'banqueEvaluation'  # Assurez-vous que votre base de données a bien ce nom
+    'user': 'root',
+    'password': 'root',
+    'database': 'banqueEvaluation'
 }
 
 # Page d'accueil
 @app.route('/')
 def home():
-    return render_template('index.html')
+    connection = None
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        # Récupérer les 3 derniers profils ajoutés
+        query = """
+            SELECT Prenom, Nom FROM Clients
+            ORDER BY ClientID DESC LIMIT 3
+        """
+        cursor.execute(query)
+        recent_profiles = cursor.fetchall()
+        return render_template('index.html', recent_profiles=recent_profiles)
+    except mysql.connector.Error as err:
+        return f"Erreur: {err}"
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 # Route pour afficher les archives
 @app.route('/archive')
@@ -26,14 +44,13 @@ def archive():
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor(dictionary=True)
 
-        # Récupérer les données des clients récemment traités
+        # Inclure le score_sante dans la requête
         query = """
-            SELECT Clients.ClientID, Clients.Prenom, Clients.Nom, Clients.Age, Sante.IMC, Historique.DossierMedical,
-            (100 - (Clients.Age / 2) - (Sante.IMC / 10) - (5 * Historique.DossierMedical)) AS score_sante
+            SELECT Clients.ClientID, Clients.Prenom, Clients.Nom, Clients.Age, Historique.DossierMedical, Sante.IMC as score_sante
             FROM Clients
-            JOIN Sante ON Clients.ClientID = Sante.ClientID
             JOIN Historique ON Clients.ClientID = Historique.ClientID
-            ORDER BY Clients.ClientID DESC
+            JOIN Sante ON Clients.ClientID = Sante.ClientID
+            ORDER BY Clients.ClientID DESC LIMIT 10
         """
         cursor.execute(query)
         clients = cursor.fetchall()
@@ -61,16 +78,12 @@ def add_emprunteur():
         antecedents_medicaux = int(data['antecedents_medicaux'])
         score_employabilite = int(data['score_employabilite'])
 
-        # Calcul du BMI
         imc = poids / ((taille / 100) ** 2)
-
-        # Calcul du score santé
         score_sante = max(0, 100 - (age / 2) - (imc / 10) - (antecedents_medicaux * 5))
 
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
-        # Insérer les données dans la table Clients
         query_clients = """
             INSERT INTO Clients (Nom, Prenom, Age, Sexe, Profession, RevenuAnnuel, RatioEndettement, MontantPret, DureePret)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -87,38 +100,23 @@ def add_emprunteur():
             12
         )
         cursor.execute(query_clients, client_values)
-
-        # Récupérer l'ID du client nouvellement ajouté
         client_id = cursor.lastrowid
 
-        # Insérer les données dans la table Sante
         query_sante = """
             INSERT INTO Sante (ClientID, Poids, Taille, IMC, ActivitePhysique, Tabagisme, ConsommationAlcool, MaladiesChroniques, ChirurgiesPassees, HospitalisationsRecente)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         sante_values = (
-            client_id,
-            poids,
-            taille,
-            imc,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
+            client_id, poids, taille, imc, 0, 0, 0, 0, 0, 0
         )
         cursor.execute(query_sante, sante_values)
 
-        # Insérer les données dans la table Historique
         query_historique = """
             INSERT INTO Historique (ClientID, DossierMedical, PretObtenu)
             VALUES (%s, %s, %s)
         """
         historique_values = (
-            client_id,
-            "Dossier médical par défaut",
-            "Non"
+            client_id, "Dossier médical par défaut", 0
         )
         cursor.execute(query_historique, historique_values)
 
@@ -132,6 +130,5 @@ def add_emprunteur():
             cursor.close()
             connection.close()
 
-# Lancer l'application Flask
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

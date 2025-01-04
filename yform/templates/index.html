@@ -20,10 +20,9 @@
             <div class="right-panel">
                 <h2 class="recent-title">Récemment ajouté</h2>
                 <div class="recent-list">
-                    <!-- Ces éléments doivent être générés dynamiquement -->
-                    <div class="recent-profile">Profil 1</div>
-                    <div class="recent-profile">Profil 2</div>
-                    <div class="recent-profile">Profil 3</div>
+                    {% for profile in recent_profiles %}
+                    <div class="recent-profile">{{ profile.Prenom }} {{ profile.Nom }}</div>
+                    {% endfor %}
                 </div>
             </div>
         </main>

@@ -8,13 +8,17 @@
 </head>
 <body>
     <div class="archive-container">
-        <a href="/" class="back-button">←</a>
-        <h1 class="archive-title">Archives</h1>
-        <div class="archive-list">
+        <a href="/" class="back-button">← Retour</a>
+        <h1>Archives</h1>
+        <div class="client-list">
             {% for client in clients %}
-            <div class="archive-card {% if client.score_sante > 60 %}high-score{% else %}low-score{% endif %}">
-                <span class="archive-name">{{ client.Prenom }} {{ client.Nom }}</span>
-                <span class="archive-score">{{ client.score_sante }}%</span>
+            <div class="client-card">
+                <div class="client-info">
+                    <strong>{{ client.Prenom }} {{ client.Nom }}</strong>
+                </div>
+                <div class="client-score {{ 'high-score' if client.score_sante > 60 else 'low-score' }}">
+                    {{ client.score_sante }}%
+                </div>
             </div>
             {% endfor %}
         </div>
