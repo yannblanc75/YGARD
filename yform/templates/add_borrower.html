@@ -28,6 +28,10 @@
           <label for="email">Adresse Email</label>
           <input type="email" id="email" name="email" placeholder="exemple@domaine.com" required />
         </div>
+        <div class="form-group">
+          <label for="profession">Profession</label>
+          <input type="text" id="profession" name="profession" placeholder="Entrez la profession" required />
+        </div>
       </section>
 
       <!-- Informations Santé -->
@@ -41,14 +45,39 @@
           <label for="weight">Poids (kg)</label>
           <input type="number" id="weight" name="weight" placeholder="Ex : 70" required />
         </div>
-      </section>
-
-      <!-- Historique Médical -->
-      <section class="form-section">
-        <h2>Historique Médical</h2>
         <div class="form-group">
-          <label for="history">Antécédents Médicaux</label>
-          <textarea id="history" name="history" placeholder="Décrivez les antécédents médicaux"></textarea>
+          <label for="blood_pressure">Pression Artérielle</label>
+          <input type="text" id="blood_pressure" name="blood_pressure" placeholder="Ex : 120/80" required />
+        </div>
+        <div class="form-group">
+          <label for="physical_activity">Activité Physique (heures/semaine)</label>
+          <input type="number" id="physical_activity" name="physical_activity" placeholder="Ex : 5" required />
+        </div>
+        <div class="form-group">
+          <label for="smoking">Tabagisme (cigarettes/jour)</label>
+          <input type="number" id="smoking" name="smoking" placeholder="Ex : 0" required />
+        </div>
+
+        <div class="form-group">
+            <label for="history">Antécédents Médicaux</label>
+            <textarea id="history" name="history" placeholder="Décrivez les antécédents médicaux"></textarea>
+          </div>
+          
+        <div class="form-group">
+          <label for="alcohol_consumption">Consommation d'Alcool (verres/semaine)</label>
+          <input type="number" id="alcohol_consumption" name="alcohol_consumption" placeholder="Ex : 3" required />
+        </div>
+        <div class="form-group">
+          <label for="chronic_diseases">Maladies Chroniques</label>
+          <textarea id="chronic_diseases" name="chronic_diseases" placeholder="Décrivez les maladies chroniques"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="past_surgeries">Chirurgies Passées</label>
+          <textarea id="past_surgeries" name="past_surgeries" placeholder="Décrivez les chirurgies passées"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="recent_hospitalizations">Hospitalisations Récentes</label>
+          <textarea id="recent_hospitalizations" name="recent_hospitalizations" placeholder="Décrivez les hospitalisations récentes"></textarea>
         </div>
       </section>
 

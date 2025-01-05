@@ -73,7 +73,6 @@ def archive():
 def add_form():
     return render_template('add_borrower.html')
 
-# Route pour ajouter un emprunteur
 @app.route('/api/emprunteurs', methods=['POST'])
 def add_emprunteur():
     data = request.json
@@ -99,18 +98,26 @@ def add_emprunteur():
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query_clients, (
-            data['name'], data['email'], dob_to_age, 'Non spécifié', 'Inconnu',
+            data['name'], data['email'], dob_to_age, 'Non spécifié', data['profession'],
             35000, 0.35, 15000, 12
         ))
         client_id = cursor.lastrowid
 
         # Insérer les données de santé
         query_sante = """
-            INSERT INTO Sante (ClientID, Poids, Taille, IMC, ActivitePhysique, Tabagisme, ConsommationAlcool)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO Sante (
+                ClientID, Poids, Taille, IMC, PressionArterielle, ActivitePhysique,
+                Tabagisme, ConsommationAlcool, MaladiesChroniques, ChirurgiesPassees,
+                HospitalisationsRecente
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         imc = float(data['weight']) / ((float(data['height']) / 100) ** 2)
-        cursor.execute(query_sante, (client_id, data['weight'], data['height'], imc, 0, 0, 0))
+        cursor.execute(query_sante, (
+            client_id, data['weight'], data['height'], imc, data['blood_pressure'],
+            data['physical_activity'], data['smoking'], data['alcohol_consumption'],
+            data['chronic_diseases'], data['past_surgeries'], data['recent_hospitalizations']
+        ))
 
         # Historique
         query_historique = """
