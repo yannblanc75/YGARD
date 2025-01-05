@@ -11,22 +11,10 @@
     <div class="archive-container">
         <a href="/" class="back-button" aria-label="Retour à la page d'accueil">← Retour</a>
         <h1>Archives</h1>
-        <input type="text" id="searchBar" placeholder="Rechercher un client..." oninput="filterClients()" aria-label="Barre de recherche pour filtrer les clients" />
+        <input type="text" id="searchBar" placeholder="Rechercher un client..." oninput="searchClients()" aria-label="Barre de recherche pour filtrer les clients" />
         <button id="resetSearch" onclick="resetSearch()" aria-label="Réinitialiser la recherche">Réinitialiser</button>
         <div class="client-list" id="clientList">
-            {% for client in clients %}
-            <div class="client-card">
-                <div class="client-info">
-                    <strong>{{ client.Prenom }} {{ client.Nom }}</strong>
-                </div>
-                <div class="client-score {{ 'high-score' if client.score_sante > 60 else 'low-score' }}">
-                    <div class="progress-bar">
-                        <span style="width: {{ client.score_sante }}%;"></span>
-                    </div>
-                    <span class="score-text">{{ client.score_sante }}%</span>
-                </div>
-            </div>
-            {% endfor %}
+            <!-- La liste des clients sera remplie dynamiquement -->
         </div>
         
         <div class="pagination">
@@ -36,46 +24,76 @@
     </div>
 
     <script>
-        const clients = Array.from(document.querySelectorAll('.client-card'));
+        let clients = [];
         const perPage = 5;
         let currentPage = 0;
 
-        function showPage(page) {
-            const start = page * perPage;
+        async function fetchClients(query = '') {
+            try {
+                const response = await fetch(`/api/search_clients?query=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+                clients = await response.json();
+                currentPage = 0;
+                renderClients();
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function renderClients() {
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = ''; // Vider la liste actuelle
+            const start = currentPage * perPage;
             const end = start + perPage;
-            clients.forEach((client, index) => {
-                client.style.display = index >= start && index < end ? 'flex' : 'none';
+            const currentClients = clients.slice(start, end);
+
+            currentClients.forEach(client => {
+                const clientCard = document.createElement('div');
+                clientCard.className = 'client-card';
+                clientCard.onclick = () => window.location.href = `/profile/${client.ClientID}`;
+
+                clientCard.innerHTML = `
+                    <div class="client-info">
+                        <strong>${client.Prenom} ${client.Nom}</strong>
+                    </div>
+                    <div class="client-score ${client.score_sante > 60 ? 'high-score' : 'low-score'}">
+                        <div class="progress-bar">
+                            <span style="width: ${client.score_sante}%;"></span>
+                        </div>
+                        <span class="score-text">${client.score_sante.toFixed(2)}%</span>
+                    </div>
+                `;
+                clientList.appendChild(clientCard);
             });
-            document.getElementById('prevPage').disabled = page === 0;
+
+            document.getElementById('prevPage').disabled = currentPage === 0;
             document.getElementById('nextPage').disabled = end >= clients.length;
         }
 
         function nextPage() {
             currentPage++;
-            showPage(currentPage);
+            renderClients();
         }
 
         function prevPage() {
             currentPage--;
-            showPage(currentPage);
+            renderClients();
         }
 
-        function filterClients() {
-            const searchValue = document.getElementById('searchBar').value.toLowerCase();
-            clients.forEach(client => {
-                const name = client.querySelector('.client-info strong').textContent.toLowerCase();
-                client.style.display = name.includes(searchValue) ? 'flex' : 'none';
-            });
-            currentPage = 0;
-            showPage(currentPage);
+        function searchClients() {
+            const searchValue = document.getElementById('searchBar').value;
+            fetchClients(searchValue); // Requête vers le backend
         }
 
         function resetSearch() {
             document.getElementById('searchBar').value = '';
-            filterClients();
+            fetchClients();
         }
 
-        showPage(currentPage);
+        // Initialisation
+        fetchClients();
     </script>
 </body>
 </html>

@@ -1,34 +1,39 @@
-document.querySelector("#addBorrowerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // Récupérer les données du formulaire
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    console.log("Données envoyées :", data); // Débogage
+document.querySelector("#searchBar").addEventListener("input", async (e) => {
+    const query = e.target.value.trim();
 
     try {
-        // Envoyer les données au backend
-        const response = await fetch("/api/emprunteurs", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        // Gérer la réponse du backend
+        // Requête GET au backend avec le terme de recherche
+        const response = await fetch(`/api/search_clients?query=${encodeURIComponent(query)}`);
         if (response.ok) {
-            const result = await response.json();
-            alert(result.message); // Message de succès
-            e.target.reset(); // Réinitialiser le formulaire
+            const clients = await response.json();
+            updateClientList(clients); // Mettre à jour la liste des clients
         } else {
-            const error = await response.json();
-            alert(`Erreur : ${error.message}`); // Afficher le message d'erreur
+            console.error("Erreur lors de la récupération des résultats.");
         }
     } catch (error) {
-        // Gérer les erreurs de communication
-        alert("Une erreur est survenue lors de l'envoi des données.");
-        console.error(error);
+        console.error("Erreur réseau :", error);
     }
 });
+
+function updateClientList(clients) {
+    const clientList = document.querySelector(".client-list");
+    clientList.innerHTML = ""; // Vider la liste actuelle
+
+    // Construire la liste de clients
+    clients.forEach((client) => {
+        const clientCard = document.createElement("div");
+        clientCard.className = "client-card";
+
+        clientCard.innerHTML = `
+            <div>
+                <h3>${client.Prenom} ${client.Nom}</h3>
+                <p>Score Santé : ${client.score_sante.toFixed(2)}%</p>
+            </div>
+            <div class="progress-bar">
+                <span style="width: ${client.score_sante}%;"></span>
+            </div>
+        `;
+
+        clientList.appendChild(clientCard);
+    });
+}
