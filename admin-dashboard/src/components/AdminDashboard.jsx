@@ -23,9 +23,11 @@ const AdminDashboard = () => {
         return "✅ Accepté";
       case 0:
         return "❌ Refusé";
+      case 2:
       default:
         return "⏳ Non traité";
     }
+  
   };
 
   const filteredClients = clients.filter((client) =>
