@@ -123,3 +123,75 @@ def test_add_borrower_missing_field(client):
     # Assertions
     assert response.status_code == 400  # Vérifie que la requête échoue
     assert 'email' in json.loads(response.data.decode('utf-8')).get('error', '')
+
+
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+
+@pytest.fixture(autouse=True)
+def clean_database():
+    """Nettoie la base de données avant chaque test."""
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM Clients")
+    cursor.execute("DELETE FROM Sante")
+    cursor.execute("DELETE FROM Historique")
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def test_health_score_calculation(client):
+    """Test pour vérifier le calcul du score de santé."""
+    # Données de test
+    test_client = {
+        'name': 'Test User',
+        'dob': '1985-10-10',
+        'email': 'test.user@example.com',
+        'profession': 'Ingénieur',
+        'gender': 'Homme',
+        'height': 180,  # cm
+        'weight': 75,   # kg
+        'blood_pressure': '120/80',
+        'physical_activity': 5,
+        'smoking': 0,
+        'alcohol_consumption': 2,
+        'chronic_diseases': '',
+        'past_surgeries': '',
+        'recent_hospitalizations': '',
+        'history': 'Non'
+    }
+
+    # Envoi des données au serveur
+    response = client.post('/api/emprunteurs', json=test_client)
+    assert response.status_code == 201
+
+    # Vérifier le calcul du score de santé
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT Clients.Nom, Clients.Prenom, Clients.Age, Sante.IMC,
+               Sante.Poids, Sante.Taille
+        FROM Clients
+        JOIN Sante ON Clients.ClientID = Sante.ClientID
+    """)
+    client_data = cursor.fetchone()
+
+    # Recalculer le score
+    age = client_data['Age']
+    imc = float(client_data['IMC'])  # Convertir en float
+    antecedents = 0  # Pas d'antécédents ici
+    expected_score = max(0, 100 - (age / 2) - (imc / 10) - (antecedents * 5))
+
+    # Comparer avec les données calculées
+    response = client.get('/archive')
+    assert response.status_code == 200
+
+    clients = response.data.decode('utf-8')
+    assert str(expected_score) in clients
+
+    cursor.close()
+    connection.close()

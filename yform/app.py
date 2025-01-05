@@ -76,7 +76,7 @@ def add_form():
 @app.route('/api/emprunteurs', methods=['POST'])
 def add_emprunteur():
     data = request.json
-    
+
     # Debug : imprimer les données reçues et vérifier les champs manquants
     print("Données reçues :", data)
 
@@ -97,12 +97,20 @@ def add_emprunteur():
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
+        # Séparer prénom et nom
+        full_name = data['name'].strip().split(" ")
+        if len(full_name) < 2:
+            return jsonify({'error': "Le champ 'Nom Complet' doit inclure à la fois un prénom et un nom."}), 400
+
+        prenom = full_name[0]
+        nom = " ".join(full_name[1:])
+
         # Vérifier si l'emprunteur existe déjà
         query_check = """
             SELECT * FROM Clients WHERE Nom = %s AND Prenom = %s AND Age = %s
         """
         dob_to_age = 2025 - int(data['dob'].split("-")[0])
-        cursor.execute(query_check, (data['name'], data['email'], dob_to_age))
+        cursor.execute(query_check, (nom, prenom, dob_to_age))
         existing_client = cursor.fetchone()
 
         if existing_client:
@@ -110,12 +118,12 @@ def add_emprunteur():
 
         # Insérer les données du client
         query_clients = """
-            INSERT INTO Clients (Nom, Prenom, Age, Sexe, Profession, RevenuAnnuel, RatioEndettement, MontantPret, DureePret)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO Clients (Nom, Prenom, Age, Sexe, Profession, RevenuAnnuel, RatioEndettement, MontantPret, DureePret, email)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query_clients, (
-            data['name'], data['email'], dob_to_age, data['gender'], data['profession'],
-            35000, 0.35, 15000, 12
+            nom, prenom, dob_to_age, data['gender'], data['profession'],
+            35000, 0.35, 15000, 12, data['email']
         ))
         client_id = cursor.lastrowid
 

@@ -1,0 +1,147 @@
+/* Conteneur principal */
+.archive-container {
+    display: flex;
+    flex-direction: column;
+    width: calc(30% * 1.6);
+    max-width: 1000px;
+    padding: 20px;
+    background: linear-gradient(to bottom, #1e3c72, #2a5298);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+.archive-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #f5f5f5;
+}
+
+/* Bouton retour */
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #f5f5f5;
+    font-size: 1.2rem;
+    text-decoration: none;
+    border: 2px solid #f5f5f5;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.back-button:hover {
+    background-color: #f5f5f5;
+    color: #1e3c72;
+}
+
+/* Barre de recherche */
+#searchBar {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+#resetSearch {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #f5f5f5;
+    background-color: #1e3c72;
+    border: 2px solid #f5f5f5;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#resetSearch:hover {
+    background-color: #f5f5f5;
+    color: #1e3c72;
+}
+
+/* Liste des clients */
+.client-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Carte client */
+.client-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.client-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+/* Barre de progression des scores */
+/* Progress bar styles */
+.progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    width: 70%;
+    height: 10px;
+    margin-top: 5px;
+    display: inline-block;
+    position: relative;
+}
+
+.progress-bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    transition: width 0.3s ease-in-out;
+}
+
+.score-text {
+    font-size: 1rem;
+    margin-left: 10px;
+    color: inherit;
+}
+
+
+.low-score {
+    color: #f44336;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background: #45a29e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.pagination button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #66fcf1;
+}

@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archives</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/archives.css">
 </head>
 <body>
     <div class="archive-container">
-        <a href="/" class="back-button">← Retour</a>
+        <a href="/" class="back-button" aria-label="Retour à la page d'accueil">← Retour</a>
         <h1>Archives</h1>
-        <input type="text" id="searchBar" placeholder="Rechercher un client..." oninput="filterClients()" />
+        <input type="text" id="searchBar" placeholder="Rechercher un client..." oninput="filterClients()" aria-label="Barre de recherche pour filtrer les clients" />
+        <button id="resetSearch" onclick="resetSearch()" aria-label="Réinitialiser la recherche">Réinitialiser</button>
         <div class="client-list" id="clientList">
             {% for client in clients %}
             <div class="client-card">
@@ -18,22 +20,62 @@
                     <strong>{{ client.Prenom }} {{ client.Nom }}</strong>
                 </div>
                 <div class="client-score {{ 'high-score' if client.score_sante > 60 else 'low-score' }}">
-                    {{ client.score_sante }}%
+                    <div class="progress-bar">
+                        <span style="width: {{ client.score_sante }}%;"></span>
+                    </div>
+                    <span class="score-text">{{ client.score_sante }}%</span>
                 </div>
             </div>
             {% endfor %}
         </div>
+        
+        <div class="pagination">
+            <button onclick="prevPage()" id="prevPage" disabled aria-label="Page précédente">Précédent</button>
+            <button onclick="nextPage()" id="nextPage" aria-label="Page suivante">Suivant</button>
+        </div>
     </div>
 
     <script>
+        const clients = Array.from(document.querySelectorAll('.client-card'));
+        const perPage = 5;
+        let currentPage = 0;
+
+        function showPage(page) {
+            const start = page * perPage;
+            const end = start + perPage;
+            clients.forEach((client, index) => {
+                client.style.display = index >= start && index < end ? 'flex' : 'none';
+            });
+            document.getElementById('prevPage').disabled = page === 0;
+            document.getElementById('nextPage').disabled = end >= clients.length;
+        }
+
+        function nextPage() {
+            currentPage++;
+            showPage(currentPage);
+        }
+
+        function prevPage() {
+            currentPage--;
+            showPage(currentPage);
+        }
+
         function filterClients() {
             const searchValue = document.getElementById('searchBar').value.toLowerCase();
-            const clients = document.querySelectorAll('.client-card');
             clients.forEach(client => {
                 const name = client.querySelector('.client-info strong').textContent.toLowerCase();
                 client.style.display = name.includes(searchValue) ? 'flex' : 'none';
             });
+            currentPage = 0;
+            showPage(currentPage);
         }
+
+        function resetSearch() {
+            document.getElementById('searchBar').value = '';
+            filterClients();
+        }
+
+        showPage(currentPage);
     </script>
 </body>
 </html>

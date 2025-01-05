@@ -13,8 +13,8 @@ body {
 
 /* Conteneur principal */
 .index-container {
-    width: calc(30% * 1.6); /* Augmente la largeur de 60 % */
-    max-width: calc(1200px * 1.6); /* Agrandit proportionnellement */
+    width: 60%;
+    max-width: 1200px;
     background: #0b0c10;
     border-radius: 15px;
     padding: 20px;
@@ -123,88 +123,4 @@ body {
     background: #45a29e;
     color: #0b0c10;
     transform: scale(1.02);
-}
-
-/* Style général pour les archives */
-.archive-container {
-    display: flex;
-    flex-direction: column;
-    width: calc(30% * 1.6); /* Augmente la largeur de 60 % */
-    max-width: calc(1000px * 1.6); /* Agrandit proportionnellement */
-    padding: 20px;
-    background: linear-gradient(to bottom, #1e3c72, #2a5298);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    color: #fff;
-    text-align: center;
-    font-family: 'Arial', sans-serif;
-}
-
-.archive-container h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #f5f5f5;
-}
-
-/* Retour bouton */
-.back-button {
-    display: inline-block;
-    margin-bottom: 20px;
-    color: #f5f5f5;
-    font-size: 1.2rem;
-    text-decoration: none;
-    border: 2px solid #f5f5f5;
-    padding: 8px 15px;
-    border-radius: 5px;
-    transition: 0.3s;
-}
-
-.back-button:hover {
-    background-color: #f5f5f5;
-    color: #1e3c72;
-}
-
-/* Liste des clients */
-.client-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Carte client */
-.client-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
-}
-
-.client-card:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Informations client */
-.client-info {
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: capitalize;
-    color: #f5f5f5;
-}
-
-/* Score client */
-.client-score {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.high-score {
-    color: #4caf50; /* Vert pour les scores élevés */
-}
-
-.low-score {
-    color: #f44336; /* Rouge pour les scores bas */
 }
