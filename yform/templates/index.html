@@ -13,17 +13,13 @@
             <span class="doctor-name">Dr. Blancard</span>
         </header>
         <main class="index-main">
+            <div class="welcome-message">
+                <p>Bienvenue sur YFORMED, la plateforme de gestion de clients santé !</p>
+                <p>Nombre total de clients : <strong>{{ total_clients }}</strong></p>
+            </div>
             <div class="left-panel">
                 <button onclick="window.location.href='/archive'" class="action-button">Archives</button>
                 <button onclick="window.location.href='/add'" class="action-button">Ajouter un profil</button>
-            </div>
-            <div class="right-panel">
-                <h2 class="recent-title">Récemment ajouté</h2>
-                <div class="recent-list">
-                    {% for profile in recent_profiles %}
-                    <div class="recent-profile">{{ profile.Prenom }} {{ profile.Nom }}</div>
-                    {% endfor %}
-                </div>
             </div>
         </main>
     </div>

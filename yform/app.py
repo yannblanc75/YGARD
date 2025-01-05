@@ -17,7 +17,23 @@ db_config = {
 # Page d'accueil
 @app.route('/')
 def home():
-    return render_template('index.html')
+    connection = None
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Récupérer le nombre total de clients
+        query = "SELECT COUNT(*) FROM Clients"
+        cursor.execute(query)
+        total_clients = cursor.fetchone()[0]
+
+        return render_template('index.html', total_clients=total_clients)
+    except mysql.connector.Error as err:
+        return f"Erreur: {err}"
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 # Route pour afficher les archives
 @app.route('/archive')

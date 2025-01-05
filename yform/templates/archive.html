@@ -10,7 +10,8 @@
     <div class="archive-container">
         <a href="/" class="back-button">← Retour</a>
         <h1>Archives</h1>
-        <div class="client-list">
+        <input type="text" id="searchBar" placeholder="Rechercher un client..." oninput="filterClients()" />
+        <div class="client-list" id="clientList">
             {% for client in clients %}
             <div class="client-card">
                 <div class="client-info">
@@ -23,5 +24,16 @@
             {% endfor %}
         </div>
     </div>
+
+    <script>
+        function filterClients() {
+            const searchValue = document.getElementById('searchBar').value.toLowerCase();
+            const clients = document.querySelectorAll('.client-card');
+            clients.forEach(client => {
+                const name = client.querySelector('.client-info strong').textContent.toLowerCase();
+                client.style.display = name.includes(searchValue) ? 'flex' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
