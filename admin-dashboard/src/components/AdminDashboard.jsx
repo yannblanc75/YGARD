@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [clients, setClients] = useState([]);
-  const [search, setSearch] = useState("");
-  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     fetch("http://127.0.0.1:5002/clients")
@@ -13,9 +12,21 @@ const AdminDashboard = () => {
       .catch((error) => console.error("Erreur lors de la récupération des clients :", error));
   }, []);
 
-  const handleViewDetails = (client) => {
-    navigate("/borrower", { state: client });
-  };
+  const filteredClients = clients.filter((client) => {
+    // Filtrage par recherche
+    const matchesSearch =
+      client.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.Prenom.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Filtrage par statut
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "accepted" && client.etatDuDossier === 1) ||
+      (filter === "refused" && client.etatDuDossier === 0) ||
+      (filter === "pending" && client.etatDuDossier === 2);
+
+    return matchesSearch && matchesFilter;
+  });
 
   const getStatus = (etatDuDossier) => {
     switch (etatDuDossier) {
@@ -27,45 +38,80 @@ const AdminDashboard = () => {
       default:
         return "⏳ Non traité";
     }
-  
   };
 
-  const filteredClients = clients.filter((client) =>
-    `${client.Prenom} ${client.Nom}`.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-gray-100 flex flex-col items-center">
-      <header className="w-full py-6 bg-white shadow-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800">YGARD Dashboard</h1>
-        <div className="mt-4 flex justify-center">
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center mb-6">YGARD Dashboard</h1>
+
+        {/* Barre de recherche */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
           <input
             type="text"
             placeholder="Rechercher un client..."
-            className="border border-gray-300 rounded-lg px-4 py-2 w-1/2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border rounded-lg px-4 py-2 w-full md:w-1/3 mb-4 md:mb-0"
           />
-        </div>
-      </header>
-      <main className="flex-1 w-full max-w-5xl mt-10 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredClients.map((client) => (
-          <div key={client.ClientID} className="bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800">
-              {client.Prenom} {client.Nom}
-            </h2>
-            <p className="text-gray-700">Montant du prêt : {client.MontantPret.toLocaleString()} €</p>
-            <p className="text-gray-700">Durée : {client.DureePret} mois</p>
-            <p className="text-gray-700 font-semibold">Statut : {getStatus(client.etatDuDossier)}</p>
+
+          {/* Filtres */}
+          <div className="flex items-center space-x-4">
             <button
-              onClick={() => handleViewDetails(client)}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+              onClick={() => setFilter("all")}
+              className={`px-4 py-2 rounded-lg ${
+                filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
             >
-              Voir le dossier
+              Tous
+            </button>
+            <button
+              onClick={() => setFilter("accepted")}
+              className={`px-4 py-2 rounded-lg ${
+                filter === "accepted" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              Acceptés
+            </button>
+            <button
+              onClick={() => setFilter("refused")}
+              className={`px-4 py-2 rounded-lg ${
+                filter === "refused" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              Refusés
+            </button>
+            <button
+              onClick={() => setFilter("pending")}
+              className={`px-4 py-2 rounded-lg ${
+                filter === "pending" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              En attente
             </button>
           </div>
-        ))}
-      </main>
+        </div>
+
+        {/* Liste des clients */}
+        <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {filteredClients.map((client) => (
+            <div key={client.ClientID} className="bg-white shadow-lg rounded-lg p-6">
+              <h2 className="text-xl font-bold text-gray-800">
+                {client.Prenom} {client.Nom}
+              </h2>
+              <p className="text-gray-700">Montant du prêt : {client.MontantPret.toLocaleString()} €</p>
+              <p className="text-gray-700">Durée : {client.DureePret} mois</p>
+              <p className="text-gray-700 font-semibold">Statut : {getStatus(client.etatDuDossier)}</p>
+              <button
+                onClick={() => console.log("Voir le dossier", client.ClientID)}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+              >
+                Voir le dossier
+              </button>
+            </div>
+          ))}
+        </main>
+      </div>
     </div>
   );
 };

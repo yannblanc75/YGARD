@@ -74,14 +74,15 @@ def update_client_status():
 def get_client_status(client_id):
     try:
         cursor = db.cursor(dictionary=True)
-        query = "SELECT etatDuDossier FROM Clients WHERE ClientID = %s"
+        query = "SELECT etatDuDossier, EstFavorable FROM Clients WHERE ClientID = %s"
         cursor.execute(query, (client_id,))
         result = cursor.fetchone()
         cursor.close()
         if result:
-            status_map = {0: "Refusé", 1: "Accepté", None: "Non traité"}
+            status_map = {0: "Refusé", 1: "Accepté", 2: "Non traité"}
             status = status_map.get(result["etatDuDossier"], "Inconnu")
-            return jsonify({"etatDuDossier": status}), 200
+            favorable = "Favorable" if result["EstFavorable"] == 1 else "Pas favorable"
+            return jsonify({"etatDuDossier": status, "EstFavorable": favorable}), 200
         else:
             return jsonify({"error": "Client introuvable."}), 404
     except Exception as e:
