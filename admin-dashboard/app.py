@@ -89,5 +89,6 @@ def get_client_status(client_id):
         print("Erreur:", e)
         return jsonify({"error": "Erreur lors de la récupération de l'état du dossier."}), 500
 
+
 if __name__ == '__main__':
     app.run(debug=True, port=5002)

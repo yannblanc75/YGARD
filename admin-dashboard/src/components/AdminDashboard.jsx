@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://127.0.0.1:5002/clients")
@@ -13,12 +15,10 @@ const AdminDashboard = () => {
   }, []);
 
   const filteredClients = clients.filter((client) => {
-    // Filtrage par recherche
     const matchesSearch =
       client.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.Prenom.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Filtrage par statut
     const matchesFilter =
       filter === "all" ||
       (filter === "accepted" && client.etatDuDossier === 1) ||
@@ -40,12 +40,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const viewClient = (client) => {
+    navigate(`/borrower`, { state: client });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-center mb-6">YGARD Dashboard</h1>
 
-        {/* Barre de recherche */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-6">
           <input
             type="text"
@@ -55,7 +58,6 @@ const AdminDashboard = () => {
             className="border rounded-lg px-4 py-2 w-full md:w-1/3 mb-4 md:mb-0"
           />
 
-          {/* Filtres */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setFilter("all")}
@@ -92,7 +94,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Liste des clients */}
         <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredClients.map((client) => (
             <div key={client.ClientID} className="bg-white shadow-lg rounded-lg p-6">
@@ -103,7 +104,7 @@ const AdminDashboard = () => {
               <p className="text-gray-700">Durée : {client.DureePret} mois</p>
               <p className="text-gray-700 font-semibold">Statut : {getStatus(client.etatDuDossier)}</p>
               <button
-                onClick={() => console.log("Voir le dossier", client.ClientID)}
+                onClick={() => viewClient(client)}
                 className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
               >
                 Voir le dossier
