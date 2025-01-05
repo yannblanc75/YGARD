@@ -1,0 +1,35 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #1e3c72, #2a5298);
+    color: #fff;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #1f2833;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-content {
+    display: flex;
+    gap: 20px;
+}
+
+.left-panel, .right-panel {
+    flex: 1;
+}
+
+.left-panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.right-panel canvas {
+    max-width: 100%;
+}

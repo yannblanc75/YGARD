@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Client</title>
+    <link rel="stylesheet" href="/static/css/profile.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="profile-container">
+        <a href="/archive" class="back-button">← Retour</a>
+        <h1>Profil de {{ client.Prenom }} {{ client.Nom }}</h1>
+        
+        <div class="profile-content">
+            <!-- Panneau gauche -->
+            <div class="left-panel">
+                <h2>Modifier les données du profil</h2>
+                <form id="updateProfileForm">
+                    {% for key, value in client.items() %}
+                    <div class="form-group">
+                        <label for="{{ key }}">{{ key }}</label>
+                        <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
+                    </div>
+                    {% endfor %}
+                    <button type="submit">Enregistrer</button>
+                </form>
+            </div>
+
+            <!-- Panneau droit -->
+            <div class="right-panel">
+                <h2>Graphiques</h2>
+                <div>
+                    <canvas id="habitsChart"></canvas>
+                </div>
+                <div>
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Graphique camembert
+        const habitsData = {{ habits_data | tojson }};
+        const habitsCtx = document.getElementById('habitsChart').getContext('2d');
+        new Chart(habitsCtx, {
+            type: 'pie',
+            data: {
+                labels: habitsData.labels,
+                datasets: [{
+                    data: habitsData.values,
+                    backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56']
+                }]
+            }
+        });
+
+        // Graphique score santé
+        const scoreData = {{ score_data | tojson }};
+        const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+        new Chart(scoreCtx, {
+            type: 'line',
+            data: {
+                labels: scoreData.labels,
+                datasets: [{
+                    label: 'Score de Santé',
+                    data: scoreData.values,
+                    borderColor: '#36a2eb',
+                    fill: false
+                }]
+            }
+        });
+    </script>
+</body>
+</html>

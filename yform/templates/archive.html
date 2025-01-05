@@ -15,7 +15,7 @@
         <button id="resetSearch" onclick="resetSearch()" aria-label="Réinitialiser la recherche">Réinitialiser</button>
         <div class="client-list" id="clientList">
             {% for client in clients %}
-            <div class="client-card">
+            <div class="client-card" onclick="window.location.href='/profile/{{ client.ClientID }}'">
                 <div class="client-info">
                     <strong>{{ client.Prenom }} {{ client.Nom }}</strong>
                 </div>

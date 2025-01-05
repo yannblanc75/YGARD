@@ -160,6 +160,49 @@ def add_emprunteur():
             cursor.close()
             connection.close()
 
+@app.route('/profile/<int:client_id>', methods=['GET'])
+def profile(client_id):
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor(dictionary=True)
+
+    # Fetch client data
+    query = """
+        SELECT Clients.*, Sante.Tabagisme, Sante.ConsommationAlcool, Sante.ActivitePhysique, Sante.ChirurgiesPassees
+        FROM Clients
+        JOIN Sante ON Clients.ClientID = Sante.ClientID
+        WHERE Clients.ClientID = %s
+    """
+    cursor.execute(query, (client_id,))
+    client = cursor.fetchone()
+
+    if not client:
+        return f"Client with ID {client_id} not found.", 404
+
+    # Prepare data for charts
+    habits_data = {
+        'labels': ['Tabac', 'Alcool', 'Activité Physique', 'Chirurgies'],
+        'values': [
+            client.get('Tabagisme', 0),
+            client.get('ConsommationAlcool', 0),
+            client.get('ActivitePhysique', 0),
+            client.get('ChirurgiesPassees', 0)
+        ]
+    }
+
+    # Fetch health scores for comparison
+    cursor.execute("SELECT Clients.ClientID, (100 - (Age / 2) - (IMC / 10)) AS score_sante FROM Clients JOIN Sante ON Clients.ClientID = Sante.ClientID")
+    scores = cursor.fetchall()
+
+    score_data = {
+        'labels': [f"Client {row['ClientID']}" for row in scores],
+        'values': [float(row['score_sante']) for row in scores]
+    }
+
+    cursor.close()
+    connection.close()
+
+    return render_template('profile.html', client=client, habits_data=habits_data, score_data=score_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
