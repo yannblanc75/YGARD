@@ -76,6 +76,22 @@ def add_form():
 @app.route('/api/emprunteurs', methods=['POST'])
 def add_emprunteur():
     data = request.json
+    
+    # Debug : imprimer les données reçues et vérifier les champs manquants
+    print("Données reçues :", data)
+
+    # Vérifier que tous les champs nécessaires sont présents
+    required_fields = [
+        'name', 'dob', 'email', 'profession', 'gender',
+        'height', 'weight', 'blood_pressure', 'physical_activity',
+        'smoking', 'alcohol_consumption', 'chronic_diseases',
+        'past_surgeries', 'recent_hospitalizations', 'history'
+    ]
+
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return jsonify({'error': f"Les champs suivants sont manquants : {', '.join(missing_fields)}"}), 400
+
     connection = None
     try:
         connection = mysql.connector.connect(**db_config)
@@ -98,7 +114,7 @@ def add_emprunteur():
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query_clients, (
-            data['name'], data['email'], dob_to_age, 'Non spécifié', data['profession'],
+            data['name'], data['email'], dob_to_age, data['gender'], data['profession'],
             35000, 0.35, 15000, 12
         ))
         client_id = cursor.lastrowid
