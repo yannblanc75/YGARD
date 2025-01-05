@@ -1,29 +1,29 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const path = window.location.pathname;
-
-    if (path === '/add') {
-        const form = document.getElementById('borrowerForm');
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-
-            try {
-                const response = await fetch('/api/emprunteurs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                });
-
-                const result = await response.json();
-                alert(result.message || 'Erreur lors de l\'ajout');
-            } catch (error) {
-                alert('Erreur : ' + error.message);
-            }
-        });
+document.querySelector("#addBorrowerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+  
+    try {
+      const response = await fetch("/api/emprunteurs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message);
+        e.target.reset();
+      } else {
+        const error = await response.json();
+        alert(`Erreur : ${error.message}`);
+      }
+    } catch (error) {
+      alert("Une erreur est survenue lors de l'envoi des données.");
+      console.error(error);
     }
-});
+  });
+  

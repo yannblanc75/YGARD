@@ -13,8 +13,8 @@ body {
 
 /* Conteneur principal */
 .index-container {
-    width: 80%;
-    max-width: 1200px;
+    width: calc(30% * 1.6); /* Augmente la largeur de 60 % */
+    max-width: calc(1200px * 1.6); /* Agrandit proportionnellement */
     background: #0b0c10;
     border-radius: 15px;
     padding: 20px;
@@ -124,6 +124,7 @@ body {
     color: #0b0c10;
     transform: scale(1.02);
 }
+
 /* Style général pour les archives */
 .archive-container {
     display: flex;

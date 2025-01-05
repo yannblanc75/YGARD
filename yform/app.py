@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
+from decimal import Decimal
 
 app = Flask(__name__)
 CORS(app)
@@ -16,25 +17,7 @@ db_config = {
 # Page d'accueil
 @app.route('/')
 def home():
-    connection = None
-    try:
-        connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor(dictionary=True)
-
-        # Récupérer les 3 derniers profils ajoutés
-        query = """
-            SELECT Prenom, Nom FROM Clients
-            ORDER BY ClientID DESC LIMIT 3
-        """
-        cursor.execute(query)
-        recent_profiles = cursor.fetchall()
-        return render_template('index.html', recent_profiles=recent_profiles)
-    except mysql.connector.Error as err:
-        return f"Erreur: {err}"
-    finally:
-        if connection and connection.is_connected():
-            cursor.close()
-            connection.close()
+    return render_template('index.html')
 
 # Route pour afficher les archives
 @app.route('/archive')
@@ -44,16 +27,24 @@ def archive():
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor(dictionary=True)
 
-        # Inclure le score_sante dans la requête
         query = """
-            SELECT Clients.ClientID, Clients.Prenom, Clients.Nom, Clients.Age, Historique.DossierMedical, Sante.IMC as score_sante
+            SELECT Clients.ClientID, Clients.Prenom, Clients.Nom, Clients.Age, 
+                   Sante.IMC, Sante.Poids, Sante.Taille, Historique.DossierMedical
             FROM Clients
-            JOIN Historique ON Clients.ClientID = Historique.ClientID
             JOIN Sante ON Clients.ClientID = Sante.ClientID
-            ORDER BY Clients.ClientID DESC LIMIT 10
+            JOIN Historique ON Clients.ClientID = Historique.ClientID
+            ORDER BY Clients.ClientID DESC
         """
         cursor.execute(query)
         clients = cursor.fetchall()
+
+        for client in clients:
+            imc = float(client['IMC'])
+            age = client['Age']
+            poids = float(client['Poids'])
+            antecedents = 0  # À définir avec les données réelles
+            client['score_sante'] = max(0, 100 - (age / 2) - (imc / 10) - (antecedents * 5))
+
         return render_template('archive.html', clients=clients)
     except mysql.connector.Error as err:
         return f"Erreur: {err}"
@@ -62,66 +53,58 @@ def archive():
             cursor.close()
             connection.close()
 
-# Route pour ajouter un emprunteur
 @app.route('/add', methods=['GET'])
 def add_form():
     return render_template('add_borrower.html')
 
+# Route pour ajouter un emprunteur
 @app.route('/api/emprunteurs', methods=['POST'])
 def add_emprunteur():
     data = request.json
     connection = None
     try:
-        poids = float(data['poids'])
-        taille = float(data['taille'])
-        age = int(data['age'])
-        antecedents_medicaux = int(data['antecedents_medicaux'])
-        score_employabilite = int(data['score_employabilite'])
-
-        imc = poids / ((taille / 100) ** 2)
-        score_sante = max(0, 100 - (age / 2) - (imc / 10) - (antecedents_medicaux * 5))
-
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
+        # Vérifier si l'emprunteur existe déjà
+        query_check = """
+            SELECT * FROM Clients WHERE Nom = %s AND Prenom = %s AND Age = %s
+        """
+        dob_to_age = 2025 - int(data['dob'].split("-")[0])
+        cursor.execute(query_check, (data['name'], data['email'], dob_to_age))
+        existing_client = cursor.fetchone()
+
+        if existing_client:
+            return jsonify({'message': 'Erreur : Cet emprunteur existe déjà.'}), 400
+
+        # Insérer les données du client
         query_clients = """
             INSERT INTO Clients (Nom, Prenom, Age, Sexe, Profession, RevenuAnnuel, RatioEndettement, MontantPret, DureePret)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        client_values = (
-            data['nom'],
-            data['prenom'],
-            age,
-            "Non spécifié",
-            "Profession inconnue",
-            35000,
-            0.35,
-            data['montant'],
-            12
-        )
-        cursor.execute(query_clients, client_values)
+        cursor.execute(query_clients, (
+            data['name'], data['email'], dob_to_age, 'Non spécifié', 'Inconnu',
+            35000, 0.35, 15000, 12
+        ))
         client_id = cursor.lastrowid
 
+        # Insérer les données de santé
         query_sante = """
-            INSERT INTO Sante (ClientID, Poids, Taille, IMC, ActivitePhysique, Tabagisme, ConsommationAlcool, MaladiesChroniques, ChirurgiesPassees, HospitalisationsRecente)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO Sante (ClientID, Poids, Taille, IMC, ActivitePhysique, Tabagisme, ConsommationAlcool)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        sante_values = (
-            client_id, poids, taille, imc, 0, 0, 0, 0, 0, 0
-        )
-        cursor.execute(query_sante, sante_values)
+        imc = float(data['weight']) / ((float(data['height']) / 100) ** 2)
+        cursor.execute(query_sante, (client_id, data['weight'], data['height'], imc, 0, 0, 0))
 
+        # Historique
         query_historique = """
             INSERT INTO Historique (ClientID, DossierMedical, PretObtenu)
             VALUES (%s, %s, %s)
         """
-        historique_values = (
-            client_id, "Dossier médical par défaut", 0
-        )
-        cursor.execute(query_historique, historique_values)
+        cursor.execute(query_historique, (client_id, data['history'], 'Non'))
 
         connection.commit()
-        return jsonify({'message': 'Emprunteur ajouté avec succès!', 'score_sante': score_sante}), 201
+        return jsonify({'message': 'Emprunteur ajouté avec succès!'}), 201
 
     except mysql.connector.Error as err:
         return jsonify({'error': str(err)}), 500
@@ -129,6 +112,7 @@ def add_emprunteur():
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
